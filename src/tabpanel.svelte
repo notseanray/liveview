@@ -1,6 +1,6 @@
 <script lang="ts">
     import View from "./view.svelte";
-    import { sdata, sname, tabs } from "./stores.ts";
+    import { sdata, sname, tabs, hide } from "./stores.ts";
     import Clipboard from "svelte-clipboard";
     const datap = localStorage.getItem("data");
     let ttabs = [];
@@ -140,6 +140,14 @@
                             cdata = current.data;
                             sname.set(current.name);
                             sdata.set(current.data);
+                            let hidden;
+                            hide.subscribe(d => hidden = d);
+                            hide.set(!hidden);
+                            const restore = setInterval(() => {
+                                hide.set(hidden);
+                                hide.set(!hidden);
+                                clearInterval(restore);
+                            }, 100);
                             localStorage.setItem("selected", JSON.stringify(cname));
                         }
                     }
@@ -171,7 +179,7 @@
         </button>
     </div>
     {#if ttabs.length > 0}
-        <View name={cname} />
+        <View name={cname} init={true} />
     {/if}
 </main>
 
