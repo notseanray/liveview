@@ -12,7 +12,8 @@
     if (lsdata) {
         try {
             const d = JSON.parse(lsdata);
-            const sel = JSON.parse(ndata);
+            const s = JSON.parse(ndata)
+            const sel = s ? s : "home";
             ttabs = d;
             // why does this even work?
             const restore = setInterval(() => {
@@ -172,6 +173,14 @@
             cname = name;
             cdata = "";
             sdata.set("");
+            let hidden;
+            hide.subscribe(d => hidden = d);
+            hide.set(!hidden);
+            const restore = setInterval(() => {
+                hide.set(hidden);
+                hide.set(!hidden);
+                clearInterval(restore);
+            }, 100);
         }}>
             <div class="buttonlabel">
                 +

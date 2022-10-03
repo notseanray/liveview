@@ -57,6 +57,9 @@
             });
             editor.onDidChangeModelContent(() => {
                 const v = editor.getValue({ lineEnding: '\n', preserveBOM: true });
+                let data;
+                sdata.subscribe(d => data = d);
+                localStorage.setItem("data", JSON.stringify(data));
                 sdata.set(v);
                 value.set(v);
             });
