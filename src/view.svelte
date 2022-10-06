@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { sdata, sname, hide } from "./stores.ts";
+    import { sdata, sname, hide, rerender_monaco } from "./stores.ts";
     import { onMount, onDestroy } from "svelte";
     import { writable } from "svelte/store";
     import type monaco from 'monaco-editor';
@@ -17,7 +17,7 @@
         };
     };
     onDestroy(() => {
-        window.removeEventListener("resize", debounce(handleResize, 100));
+        window.removeEventListener("resize", debounce(handleResize, 5));
     })
     let init;
     sname.subscribe(d => name = d);
@@ -85,30 +85,25 @@
         //         this.selectionStart = this.selectionEnd = start + spaces.length;
         //     }
         // });
-
-        await loadEditor();
+        if ($hide) {
+            await loadEditor();
+        }
         init = true;
     });
     hide.subscribe(v => {
-        if (v && init) {
+        if (v && init && $hide) {
             loadEditor().then(() => {})
         }
     });
     const handleResize = (e) => {
-        let hidden;
-        hide.subscribe(v => hidden = v);
-        if (init) {
-            const restore = setInterval(() => {
-                hide.set(hidden);
-                hide.set(!hidden);
-                clearInterval(restore);
-            }, 100);
+        if (init && $hide) {
+            rerender_monaco();
         }
     }
 </script>
 
 <main>
-    <div class="checktoggle column">
+    <div class="checktoggle">
         <div>
             <input class="checksize" type="checkbox" bind:checked={$hide}>
             <br />
@@ -160,10 +155,10 @@
     }
     .checktoggle {
         display: flex;
-        margin-left: 90vw;
-        top: -15px;
+        justify-content: right;
+        top: -20px;
+        margin-right: 20px;
         z-index: 10;
-        position: absolute;
     }
     .checksize {
         height: 20px;
@@ -177,7 +172,7 @@
         background: #3b4252;
     }
     .iframedata {
-        width: 98%;
+        width: 100%;
         height: 100vh;
         color: #d8dee9;
         background: #3b4252;
@@ -187,7 +182,7 @@
         background-color: #3b4252;
         background: #3b4252;
         color: #3b4252;
-        width: 48vw;
+        width: 50vw;
         height: 100vh;
     }
 

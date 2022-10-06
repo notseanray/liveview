@@ -1,6 +1,6 @@
 <script lang="ts">
     import View from "./view.svelte";
-    import { sdata, sname, tabs, hide } from "./stores.ts";
+    import { sdata, sname, tabs, hide, rerender_monaco } from "./stores.ts";
     import Clipboard from "svelte-clipboard";
     const datap = localStorage.getItem("data");
     let ttabs = [];
@@ -34,7 +34,7 @@
                     name = "new";
                 }
                 clearInterval(restore);
-            }, 100);
+            }, 5);
         } catch {
             console.log("failed to restore data from LS, resetting data")
             localStorage.clear();
@@ -66,9 +66,9 @@
 
 <main>
     <div class="tabbar">
-        <div class="tabdisplay">
+        <div>
             <div class="flexout">
-                <div>
+                <div class="tabdisplay">
                     GIGA EDITOR 9000 (BY SEAN!!)<br />
                     SELECTED: {cname}
                 </div>
@@ -81,7 +81,7 @@
                         }}>
                         <button on:click={copy}>
                             <div class="buttonlabel">
-                                COPY DATA TO CLIPBOARD
+                                COPY TO CLIPBOARD
                             </div>
                         </button>
                     </Clipboard>
@@ -99,8 +99,9 @@
                                         sname.set(f.name);
                                         cdata = f.data;
                                         sdata.set(f.data);
+                                        rerender_monaco();
                                         clearInterval(restore);
-                                    }, 100);
+                                    }, 5);
                                 }
                             }
                         } catch {
@@ -108,7 +109,7 @@
                         }
                     }}>
                         <div class="buttonlabel">
-                            LOAD FROM DATA
+                            LOAD
                         </div>
                     </button>
                 </div>
@@ -139,16 +140,9 @@
                             let current = ttabs[i];
                             cname = current.name;
                             cdata = current.data;
-                            sname.set(current.name);
                             sdata.set(current.data);
-                            let hidden;
-                            hide.subscribe(d => hidden = d);
-                            hide.set(!hidden);
-                            const restore = setInterval(() => {
-                                hide.set(hidden);
-                                hide.set(!hidden);
-                                clearInterval(restore);
-                            }, 100);
+                            sname.set(current.name);
+                            rerender_monaco();
                             localStorage.setItem("selected", JSON.stringify(cname));
                         }
                     }
@@ -173,14 +167,7 @@
             cname = name;
             cdata = "";
             sdata.set("");
-            let hidden;
-            hide.subscribe(d => hidden = d);
-            hide.set(!hidden);
-            const restore = setInterval(() => {
-                hide.set(hidden);
-                hide.set(!hidden);
-                clearInterval(restore);
-            }, 100);
+            rerender_monaco();
         }}>
             <div class="buttonlabel">
                 +
@@ -206,11 +193,10 @@
     }
     .tabbar {
         display: flex;
-        height: 60px;
         color: #d8dee9;
     }
     .tabdisplay {
-        width: 350px;
+        width: 300px;
     }
     .tabname {
         margin-left: 20px;
